@@ -1,0 +1,31 @@
+distancia_total_km/* Estilos generales */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container-azul-oscuro {
+    background-color: #1e335f; /* Azul oscuro */
+    color: #fff; /* Texto blanco */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container-azul-claro {
+    background-color: #3c6cb9; /* Azul claro */
+    padding: 80px;
+    max-width: 600px;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2); /* Sombra suave */
+}
+
+/* Estilos responsivos */
+@media screen and (max-width: 768px) {
+    .container-azul-claro {
+        padding: 40px;
+    }
+}

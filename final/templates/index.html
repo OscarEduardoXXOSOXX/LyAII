@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Route Finder</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            background-color: cyan;
+            
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .body {
+            margin: 0px;
+        }
+    </style>
+</head>
+<body >
+    <div class="container" >
+        <h1 >Buscar Ruta En Mapa</h1>
+        <div class="form-group ">
+            <label for="start">Origen:</label>
+            <select id="start">
+                {% for ciudad in ciudades %}
+                <option value="{{ ciudad }}">{{ ciudad }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="end">Destino:</label>
+            <select id="end">
+                {% for ciudad in ciudades %}
+                <option value="{{ ciudad }}">{{ ciudad }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button id="findRoute">Buscar Ruta</button>
+        <div id="route"></div>
+        <div id="map"></div>
+    </div>
+
+    <script >
+        var map = L.map('map').setView([21.87641043660486, -102.26438663286967], 5);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        $('#findRoute').click(function() {
+            var start = $('#start').val();
+            var end = $('#end').val();
+            $.ajax({
+                url: '/get_routes',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({start: start, end: end}),
+                success: function(response) {
+                    $('#route').html('<p>' + response.camino + '</p>' + response.distancia_total_km + '<p>');
+                    //$('#route').html('<p>' + response.distancia_total_km + ' <p>');
+                    
+                    var latlngs = response.coordenadas_ruta.map(function(coord) {
+                        return [coord[0], coord[1]];
+                    });
+                    var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+                    map.fitBounds(polyline.getBounds());
+
+                    console.log('Nodos intermedios encontrados:', response.nodos_intermedios_encontrados);
+                    console.log('distancia_total_km', response.distancia_total_km);
+                },
+                error: function(xhr, status, error) {
+                    $('#route').html('<p>Error: ' + xhr.responseJSON.error + '</p>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
